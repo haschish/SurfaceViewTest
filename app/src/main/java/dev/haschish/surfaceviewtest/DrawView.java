@@ -5,6 +5,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
+    private DrawThread drawThread;
+
     public DrawView(Context context) {
         super(context);
         getHolder().addCallback(this);
@@ -12,7 +14,8 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-
+        drawThread = new DrawThread(getContext(), holder);
+        drawThread.start();
     }
 
     @Override
@@ -22,6 +25,15 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
+        drawThread.requestStop();
+        boolean retry = true;
+        while (retry) {
+            try {
+                drawThread.join();
+                retry = false;
+            } catch (InterruptedException e) {
+                //
+            }
+        }
     }
 }
